@@ -27,7 +27,7 @@ public class Maze {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                int num = maze[i][j].isWall() ? 1 : 0;
+                int num = maze[j][i].isWall() ? 1 : 0;
                 sb.append("" + num + " ");
             }
             sb.append("\n");
@@ -54,44 +54,21 @@ public class Maze {
             for (int j = 0; j < width; j++) {
                 int input = s.nextInt();
                 boolean isWall = input == 0 ? false : true;
-                maze[i][j] = new Square(i, j, isWall);
+                maze[j][i] = new Square(j, i, isWall);
             }
         }
         s.close();
     }
 
-    public List<Square> getTravelableNeighbours(Square current) {
-        List<Square> neighbours = new ArrayList<>();
-        int sqX = current.getX();
-        int sqY = current.getY();
-
-        int sqXWest = sqX - 1;
-        int sqXEast = sqX + 1;
-        int sqYNorth = sqY - 1;
-        int sqYSouth = sqY + 1;
-
-        // Account for wrapping
-        if (sqXWest == -1) sqXWest = width - 1;
-        if (sqXEast == width) sqXEast = 0;
-        if (sqYNorth == -1) sqYNorth = height - 1;
-        if (sqYSouth == height) sqYSouth = 0;
-        
-        if (!maze[sqXWest][sqY].isWall()) {
-            neighbours.add(maze[sqXWest][sqY]);
-        }
-        if (!maze[sqXEast][sqY].isWall()) {
-            neighbours.add(maze[sqXEast][sqY]);
-        }
-        if (!maze[sqX][sqYNorth].isWall()) {
-            neighbours.add(maze[sqX][sqYNorth]);
-        }
-        if (!maze[sqX][sqYSouth].isWall()) {
-            neighbours.add(maze[sqX][sqYSouth]);
-        }
-        return neighbours;
-    }
-
     public Square getSquare(int i, int j) {
         return maze[i][j];
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
