@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - MazeSolver",
+            "request": "launch",
+            "mainClass": "app.MazeSolver",
+            "projectName": "Solving a Maze - Bradley Read"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Maze",
+            "request": "launch",
+            "mainClass": "app.Maze",
+            "projectName": "Solving a Maze - Bradley Read"
+        }
+    ]
+}
