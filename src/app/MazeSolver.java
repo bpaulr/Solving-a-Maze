@@ -5,20 +5,15 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class MazeSolver {
 
     private Maze maze;
     private Square startSquare;
     private Square endSquare;
-
-    private Set<Square> path;
-
-    public MazeSolver() {
-
-    }
 
     public MazeSolver(String mazeFilePath) {
         Scanner s;
@@ -39,16 +34,9 @@ public class MazeSolver {
 
         startSquare = maze.getSquare(startX, startY);
         endSquare = maze.getSquare(endX, endY);
-        path = new HashSet<>();
     }
 
-    // if can make move that has not been made make it (use set if vistited squares)
-    // if sqaure is end node return true
-    // if return true then add to set "route"
-    // else
-    // repeat
-
-    private void printPath() {
+    private void printPath(Set<Square> path) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < maze.getHeight(); i++) {
             for (int j = 0; j < maze.getWidth(); j++) {
@@ -70,35 +58,111 @@ public class MazeSolver {
         System.out.println(sb.toString());
     }
 
-    public void startSearch() {
-        Set<Square> visitedSquares = new HashSet<>();
-        boolean foundPath = dfs(startSquare, visitedSquares);
-        if (foundPath) {
-            path.add(startSquare);
-            printPath();
-        } else {
-            System.out.println("COULD NOT FIND PATH!");
-        }
+    private double dist(Square a, Square b) {
+        int sqX = a.getX() - b.getX();
+        int sqY = a.getY() - b.getY();
+
+        return Math.hypot((double) sqX, (double) sqY);
     }
 
-    private boolean dfs(Square currentSquare, Set<Square> visitedSquares) {
-        if (currentSquare == endSquare) {
-            path.add(currentSquare);
-            return true;
+    private Set<Square> getKeySet(Map<Square, Square> pathPairs) {
+        Set<Square> keys = new HashSet<>();
+        for (Square key : pathPairs.keySet()) {
+            keys.add(key);
         }
-        List<Square> neighbours = getTravelableNeighbours(currentSquare);
-        visitedSquares.add(currentSquare);
-        for (Square sq : neighbours) {
-            if (visitedSquares.contains(sq)) {
-                continue;
-            }
-            boolean foundPath = dfs(sq, visitedSquares);
-            if (foundPath) {
-                path.add(currentSquare);
-                return true;
+        return keys;
+    }
+
+    private Set<Square> constructPath(Map<Square, Square> pathPairs, Square current) {
+        Set<Square> path = new HashSet<>();
+        path.add(current);
+        Square lookUpSquare = current;
+        Set<Square> keySet = getKeySet(pathPairs);
+        while (keySet.contains(lookUpSquare)) {
+            lookUpSquare = pathPairs.get(lookUpSquare);
+            path.add(lookUpSquare);
+        }
+        return path;
+    }
+
+    // A* implementation of path finding
+    // followed pseudo-code at: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
+    public void startSearch() {
+        
+        // Set of visitied squares
+        Set<Square> closedSet = new HashSet<>();
+
+        // Set of evaled squares
+        Set<Square> openSet = new HashSet<>();
+        openSet.add(startSquare);
+
+        // Map of sqaure to square, used to trace back paths
+        Map<Square, Square> cameFrom = new HashMap<>();
+
+        // Map of squares to the distance to start square
+        Map<Square, Double> gScore = new HashMap<>();
+        // Map of squares to the distance to end square
+        Map<Square, Double> fScore = new HashMap<>();
+
+        // Init distances of all squares to worst case
+        for (int i = 0; i < maze.getHeight(); i++) {
+            for (int j = 0; j < maze.getWidth(); j++) {
+                Square sq = maze.getSquare(j, i);
+                // Max possible distance (in steps taken) is every
+                // square in the maze
+                gScore.put(sq, Double.MAX_VALUE);
+                fScore.put(sq, Double.MAX_VALUE);
             }
         }
-        return false;
+
+        // Distance from strat node to start node is 0
+        gScore.put(startSquare, 0.0);
+        double guess = dist(startSquare, endSquare);
+        fScore.put(startSquare, guess);
+
+        while (openSet.size() > 0) {
+            Square current = openSet.iterator().next();
+            Double currentfScore = fScore.get(current);
+            for (Square sq : openSet) {
+                Double tempfScore = fScore.get(sq);
+                if (tempfScore.compareTo(currentfScore) < 0) {
+                    current = sq;
+                }
+            }
+
+            if (current == endSquare) {
+                // print path
+                System.out.println("FOUND PATH");
+                Set<Square> path = constructPath(cameFrom, current);
+                printPath(path);
+                return;
+            }
+
+            openSet.remove(current);
+            closedSet.add(current);
+
+            List<Square> travNeighbourSquares = getTravelableNeighbours(current);
+            for (Square sq : travNeighbourSquares) {
+                if (closedSet.contains(sq)) {
+                    continue;
+                }
+
+                Double tempgScore = gScore.get(current) + dist(current, sq);
+            
+                if (!openSet.contains(sq)) {
+                    openSet.add(sq);
+                } else if (tempgScore.compareTo(gScore.get(sq)) > -1) {
+                    continue;
+                }
+
+                cameFrom.put(sq, current);
+                gScore.put(sq, tempgScore);
+                fScore.put(sq, tempgScore + dist(sq, endSquare));
+
+            }
+
+        }
+
     }
 
     public List<Square> getTravelableNeighbours(Square current) {
@@ -147,7 +211,7 @@ public class MazeSolver {
 
     public static void main(String[] args) throws Exception {
         String path = "resources/";
-        MazeSolver ms = new MazeSolver(path + "sparse_medium.txt");
+        MazeSolver ms = new MazeSolver(path + "sparse_large.txt");
         // List<Square> test = ms.getTravelableNeighbours(ms.getMaze().getSquare(1, 1));
         // for (Square s : test)
         //     System.out.println(s);

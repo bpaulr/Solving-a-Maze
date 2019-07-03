@@ -2,8 +2,6 @@ package app;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Maze {
@@ -11,10 +9,6 @@ public class Maze {
     private int width;
     private int height;
     private Square[][] maze;
-
-    public Maze() {
-
-    }
 
     public Maze(int width, int height, String mazeFilePath) {
         this.width = width;
