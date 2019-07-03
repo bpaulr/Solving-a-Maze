@@ -1,4 +1,5 @@
 ﻿# Solving-a-Maze
+Implementation of the A* path finding algorithm for a maze (with wrapping) problem.
 
 Running Pre-Prepared Tests
 ----------------------------
