@@ -47,7 +47,10 @@ public class Maze {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int input = s.nextInt();
+                // Is the input a wall or not
                 boolean isWall = input == 0 ? false : true;
+                // use index [j][i] since iterating array left to right, 
+                // not top down
                 maze[j][i] = new Square(j, i, isWall);
             }
         }
