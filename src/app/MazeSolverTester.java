@@ -26,13 +26,15 @@ public class MazeSolverTester {
                 System.err.println("<INPUT_PATH_DIR> <INPUT_FILE_1> ... <INPUT FILE N>");
             } else {
                 String path = args[0];
-                System.out.println(args[0]);
+                System.out.println("Input Path: " + "\n" + args[0] + "\n");
                 int len = args.length;
+                System.out.println("Input Files: ");
                 String[] files = new String[len - 1];
                 for (int i = 1; i < args.length; i++) {
                     System.out.println(args[i]);
                     files[i - 1] = args[i];
                 }
+                System.out.println();
                 MazeSolverTester tester = new MazeSolverTester(path, files);
                 tester.startTests();
             }
